@@ -1,22 +1,28 @@
 package chess.controller;
 
 
-public class Board implements IBoardFacade {
-    
-    @Override
-    public void initBoard() {
+public interface Board {
 
-    }
+    /*
+     * Initializes the board in a default state
+     * 
+     */
+    void initBoard();
 
-    @Override
-    public boolean performMove(Move move) {
+    /*
+     * move is the move that is being played
+     * return whether the move was successful or not
+     */
+    boolean performMove(Move move);
 
-        return false;
-    }
+    /*
+     * Check to see if there are any checks on the board
+     * return whether a check appears or not
+     */
+    boolean checkForChecks();
 
-    @Override
-    public boolean checkForChecks() {
-        return false;
-    }
-
+    /*
+     * Place pieces back to the whatever the boards base state is
+     */
+    void resetPieces();
 }

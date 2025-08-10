@@ -1,7 +1,6 @@
 package chess.controller;
 
-import Model.Cell;
-import Model.Piece;
+import chess.controller.Pieces.Piece;
 
 public abstract class Move {
     protected Piece piece;
