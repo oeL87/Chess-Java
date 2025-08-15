@@ -1,5 +1,6 @@
 package chess.controller;
 
+import chess.controller.moves.Move;
 
 public interface Board {
 

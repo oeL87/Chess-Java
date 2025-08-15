@@ -2,7 +2,7 @@ package chess.controller;
 
 import java.util.List;
 
-import chess.controller.Pieces.Piece;
+import chess.controller.pieces.Piece;
 
 public class Cell {
     private Piece piece;

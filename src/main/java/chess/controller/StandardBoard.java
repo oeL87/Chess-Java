@@ -1,13 +1,19 @@
 package chess.controller;
 
-import chess.controller.Pieces.Bishop;
-import chess.controller.Pieces.Knight;
-import chess.controller.Pieces.Pawn;
-import chess.controller.Pieces.Queen;
-import chess.controller.Pieces.Rook;
+import chess.controller.moves.Move;
+import chess.controller.pieces.Bishop;
+import chess.controller.pieces.King;
+import chess.controller.pieces.Knight;
+import chess.controller.pieces.Pawn;
+import chess.controller.pieces.Queen;
+import chess.controller.pieces.Rook;
 
 public class StandardBoard implements Board {
     Cell[][] board;
+
+    public StandardBoard() {
+        initBoard();
+    }
     
     @Override
     public void initBoard() {
@@ -66,7 +72,7 @@ public class StandardBoard implements Board {
     private void placeRoyalty() {
         board[3][0].setPiece(new Queen(true, 3, 0));
         board[3][7].setPiece(new Queen(false, 3, 7));
-        board[4][0].setPiece(new Queen(true, 4, 0));
-        board[4][7].setPiece(new Queen(false, 4, 7));
+        board[4][0].setPiece(new King(true, 4, 0));
+        board[4][7].setPiece(new King(false, 4, 7));
     }
 }
