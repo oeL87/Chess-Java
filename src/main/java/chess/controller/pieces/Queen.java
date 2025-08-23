@@ -1,10 +1,12 @@
 package chess.controller.pieces;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import chess.Model.ChessImage;
-import chess.controller.Position;
+import chess.controller.ChessImage;
+import chess.controller.Direction;
+import chess.controller.MovementPattern;
+import chess.controller.MovementPattern.MovementType;
 
 public class Queen extends Piece {
     public Queen(boolean white, int x, int y) {
@@ -13,52 +15,16 @@ public class Queen extends Piece {
     }
 
     @Override
-    public List<Position> generateMovableCells() {
-        List<Position> ret = new ArrayList<>();
-        int x = pos.getX(), y = pos.getY();
-        for (int i = 0; i < 8; i++) {
-            if (i != x) ret.add(new Position(i, y));
-            if (i != y) ret.add(new Position(x, i));
-            if (i != 0) {
-                try {
-                    ret.add(new Position(x - i, y - i));
-                } catch (ArrayIndexOutOfBoundsException ignored) {}
-                try {
-                    ret.add(new Position(x - i, y + i));
-                } catch (ArrayIndexOutOfBoundsException ignored) {}
-                try {
-                    ret.add(new Position(x + i, y - i));
-                } catch (ArrayIndexOutOfBoundsException ignored) {}
-                try {
-                    ret.add(new Position(x + i, y + i));
-                } catch (ArrayIndexOutOfBoundsException ignored) {}
-            }
-        }
-        return ret;
-    }
-
-    @Override
-    public List<Position> generateCapturableCells() {
-        List<Position> ret = new ArrayList<>();
-        int x = pos.getX(), y = pos.getY();
-        for (int i = 0; i < 8; i++) {
-            if (i != x) ret.add(new Position(i, y));
-            if (i != y) ret.add(new Position(x, i));
-            if (i != 0) {
-                try {
-                    ret.add(new Position(x - i, y - i));
-                } catch (ArrayIndexOutOfBoundsException ignored) {}
-                try {
-                    ret.add(new Position(x - i, y + i));
-                } catch (ArrayIndexOutOfBoundsException ignored) {}
-                try {
-                    ret.add(new Position(x + i, y - i));
-                } catch (ArrayIndexOutOfBoundsException ignored) {}
-                try {
-                    ret.add(new Position(x + i, y + i));
-                } catch (ArrayIndexOutOfBoundsException ignored) {}
-            }
-        }
-        return ret;
+    public List<MovementPattern> getMovementPattern() {
+        return Arrays.asList(
+            new MovementPattern(Direction.NORTH, MovementType.SLIDING),
+            new MovementPattern(Direction.NORTHEAST, MovementType.SLIDING),
+            new MovementPattern(Direction.EAST, MovementType.SLIDING),
+            new MovementPattern(Direction.SOUTHEAST, MovementType.SLIDING),
+            new MovementPattern(Direction.SOUTH, MovementType.SLIDING),
+            new MovementPattern(Direction.SOUTHWEST, MovementType.SLIDING),
+            new MovementPattern(Direction.WEST, MovementType.SLIDING),
+            new MovementPattern(Direction.NORTHWEST, MovementType.SLIDING)  
+        );
     }
 }

@@ -1,10 +1,12 @@
 package chess.controller.pieces;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import chess.Model.ChessImage;
-import chess.controller.Position;
+import chess.controller.ChessImage;
+import chess.controller.Direction;
+import chess.controller.MovementPattern;
+import chess.controller.MovementPattern.MovementType;
 
 public class Bishop extends Piece {
     public Bishop(boolean white, int x, int y) {
@@ -13,44 +15,13 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public List<Position> generateMovableCells() {
-        List<Position> ret = new ArrayList<>();
-        int x = pos.getX(), y = pos.getY();
-        for (int i = 1; i < 8; i++) {
-            try {
-                ret.add(new Position(x - i, y - i));
-            } catch (ArrayIndexOutOfBoundsException ignored) {}
-            try {
-                ret.add(new Position(x - i, y + i));
-            } catch (ArrayIndexOutOfBoundsException ignored) {}
-            try {
-                ret.add(new Position(x + i, y - i));
-            } catch (ArrayIndexOutOfBoundsException ignored) {}
-            try {
-                ret.add(new Position(x + i, y + i));
-            } catch (ArrayIndexOutOfBoundsException ignored) {}
-        }
-        return ret;
+    public List<MovementPattern> getMovementPattern() {
+        return Arrays.asList(
+            new MovementPattern(Direction.NORTHWEST, MovementType.SLIDING),
+            new MovementPattern(Direction.NORTHEAST, MovementType.SLIDING),
+            new MovementPattern(Direction.SOUTHWEST, MovementType.SLIDING),
+            new MovementPattern(Direction.SOUTHEAST, MovementType.SLIDING)
+        );
     }
 
-    @Override
-    public List<Position> generateCapturableCells() {
-        List<Position> ret = new ArrayList<>();
-        int x = pos.getX(), y = pos.getY();
-        for (int i = 1; i < 8; i++) {
-            try {
-                ret.add(new Position(x - i, y - i));
-            } catch (ArrayIndexOutOfBoundsException ignored) {}
-            try {
-                ret.add(new Position(x - i, y + i));
-            } catch (ArrayIndexOutOfBoundsException ignored) {}
-            try {
-                ret.add(new Position(x + i, y - i));
-            } catch (ArrayIndexOutOfBoundsException ignored) {}
-            try {
-                ret.add(new Position(x + i, y + i));
-            } catch (ArrayIndexOutOfBoundsException ignored) {}
-        }
-        return ret;
-    }
 }

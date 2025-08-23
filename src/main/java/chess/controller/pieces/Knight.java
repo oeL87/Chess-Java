@@ -1,10 +1,12 @@
 package chess.controller.pieces;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import chess.Model.ChessImage;
-import chess.controller.Position;
+import chess.controller.ChessImage;
+import chess.controller.Direction;
+import chess.controller.MovementPattern;
+import chess.controller.MovementPattern.MovementType;
 
 public class Knight extends Piece {
     public Knight(boolean white, int x, int y) {
@@ -13,36 +15,16 @@ public class Knight extends Piece {
     }
 
     @Override
-    public List<Position> generateMovableCells() {
-        List<Position> ret = new ArrayList<>();
-        int x = pos.getX(), y = pos.getY();
-        int[][] knightMoves = {
-            {1, 2}, {2, 1}, {2, -1}, {1, -2},
-            {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}
-        };
-
-        for (int[] move : knightMoves) {
-            try {
-                ret.add(new Position(x + move[0], y + move[1]));
-            } catch (ArrayIndexOutOfBoundsException ignored) {}
-        }
-        return ret;
-    }
-
-    @Override
-    public List<Position> generateCapturableCells() {
-        List<Position> ret = new ArrayList<>();
-        int x = pos.getX(), y = pos.getY();
-        int[][] knightMoves = {
-            {1, 2}, {2, 1}, {2, -1}, {1, -2},
-            {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}
-        };
-
-        for (int[] move : knightMoves) {
-            try {
-                ret.add(new Position(x + move[0], y + move[1]));
-            } catch (ArrayIndexOutOfBoundsException ignored) {}
-        }
-        return ret;
+    public List<MovementPattern> getMovementPattern() {
+        return Arrays.asList(
+            new MovementPattern(new Direction(1, 2), MovementType.JUMPING),
+            new MovementPattern(new Direction(2, 1), MovementType.JUMPING),
+            new MovementPattern(new Direction(2, -1), MovementType.JUMPING),
+            new MovementPattern(new Direction(1, -2), MovementType.JUMPING),
+            new MovementPattern(new Direction(-1, -2), MovementType.JUMPING),
+            new MovementPattern(new Direction(-2, -1), MovementType.JUMPING),
+            new MovementPattern(new Direction(-2, 1), MovementType.JUMPING),
+            new MovementPattern(new Direction(-1, 2), MovementType.JUMPING)
+        );
     }
 }

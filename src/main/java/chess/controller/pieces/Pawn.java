@@ -1,10 +1,13 @@
 package chess.controller.pieces;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import chess.Model.ChessImage;
-import chess.controller.Position;
+import chess.controller.ChessImage;
+import chess.controller.Direction;
+import chess.controller.MovementPattern;
+import chess.controller.MovementPattern.MovementType;
 
 public class Pawn extends Piece {
     private boolean doubleMove;
@@ -16,32 +19,22 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public List<Position> generateMovableCells() {
-        List<Position> ret = new ArrayList<>();
-        ret.add(new Position(pos.getX(), pos.getY() + (white ? 1 : -1)));
+    public List<MovementPattern> getMovementPattern() {
+        List<MovementPattern> ret = new ArrayList<>(Arrays.asList(
+            new MovementPattern(white ? Direction.NORTHEAST : Direction.SOUTHEAST, MovementType.SPECIAL),
+            new MovementPattern(white ? Direction.NORTHWEST : Direction.SOUTHWEST, MovementType.SPECIAL),
+            new MovementPattern(white ? Direction.NORTH : Direction.SOUTH, MovementType.SPECIAL)
+        ));
         if (doubleMove) {
-            ret.add(new Position(pos.getX(), pos.getY() + (white ? 2 : -2)));
+            ret.add(new MovementPattern(new Direction(0, white ? 2 : -2), MovementType.SPECIAL));
         }
         return ret;
     }
 
     @Override
-    public List<Position> generateCapturableCells() {
-        List<Position> ret = new ArrayList<>();
-        ret.add(new Position(pos.getX() + 1, pos.getY() + (white ? 1 : -1)));
-        ret.add(new Position(pos.getX() - 1, pos.getY() + (white ? 1 : -1)));
-        return ret;
-    }
-
-    @Override
-    public boolean movePiece(int x, int y) {
-        try {
-            pos.setX(x);
-            pos.setY(y);
-            doubleMove = false;
-            return true;
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return false;
-        }
+    public void movePiece(int x, int y) {
+        pos.x = x;
+        pos.y = y;
+        doubleMove = false;
     }
 }

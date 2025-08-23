@@ -1,56 +1,51 @@
 package chess.controller.pieces;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 
-import chess.Model.ChessImage;
-import chess.controller.Position;
+import chess.controller.ChessImage;
+import chess.controller.Direction;
+import chess.controller.MovementPattern;
+import chess.controller.MovementPattern.MovementType;
 
 public class King extends Piece {
-    private boolean canCastle; 
+    private boolean kingSideCastle;
+    private boolean queenSideCastle; 
 
     public King(boolean white, int x, int y) {
         super(white, x, y);
         image = new ChessImage("./data/Chess_" + (white ? "White_" : "Black_") + "King.png");
+        kingSideCastle = true;
+        queenSideCastle = true;
     }
 
     @Override
-    public List<Position> generateMovableCells() {
-        List<Position> ret = new ArrayList<>();
-        for (int x = -1; x < 2; x++) {
-            for (int y = -1; y < 2; y++) {
-                if (pos.getX() == x && pos.getY() == y) continue;
-                ret.add(new Position(x, y));
-            }
+    public List<MovementPattern> getMovementPattern() {
+        List<MovementPattern> ret = new ArrayList<>(Arrays.asList(
+            new MovementPattern(Direction.NORTH, MovementType.STEPPING),
+            new MovementPattern(Direction.NORTHEAST, MovementType.STEPPING),
+            new MovementPattern(Direction.EAST, MovementType.STEPPING),
+            new MovementPattern(Direction.SOUTHEAST, MovementType.STEPPING),
+            new MovementPattern(Direction.SOUTH, MovementType.STEPPING),
+            new MovementPattern(Direction.SOUTHWEST, MovementType.STEPPING),
+            new MovementPattern(Direction.WEST, MovementType.STEPPING),
+            new MovementPattern(Direction.NORTHWEST, MovementType.STEPPING)
+        ));
+        if (kingSideCastle) {
+            ret.add(new MovementPattern(new Direction(2, 0), MovementType.STEPPING));
         }
-        if (canCastle) {
-            ret.add(new Position(2, pos.getY()));
-            ret.add(new Position(6, pos.getY()));
-        }
-        return ret;
-    }
-    
-    @Override
-    public List<Position> generateCapturableCells() {
-        List<Position> ret = new ArrayList<>();
-        for (int x = -1; x < 2; x++) {
-            for (int y = -1; y < 2; y++) {
-                if (pos.getX() == x && pos.getY() == y) continue;
-                ret.add(new Position(x, y));
-            }
+        if (queenSideCastle) {
+            ret.add(new MovementPattern(new Direction(-2, 0), MovementType.STEPPING));
         }
         return ret;
     }
 
     @Override
-    public boolean movePiece(int x, int y) {
-        try {
-            pos.setX(x);
-            pos.setY(y);
-            canCastle = false;
-            return true;
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return false;
-        }
+    public void movePiece(int x, int y) {
+        pos.x = x;
+        pos.y = y;
+        kingSideCastle = false;
+        queenSideCastle = false;
     }
 }

@@ -1,49 +1,48 @@
 package chess.controller.pieces;
 
 import java.util.List;
+import java.awt.Image;
+import java.awt.Point;
 
-import chess.Model.ChessImage;
-import chess.controller.Position;
+import chess.controller.ChessImage;
+import chess.controller.MovementPattern;
 
 public abstract class Piece {
     protected final boolean white;
     protected ChessImage image;
-    protected Position pos;
+    protected Point pos;
 
     public Piece(boolean white, int x, int y) {
         this.white = white;
-        pos = new Position(x, y);
+        pos = new Point(x, y);
         image = null;
     }
 
     /*
-     * returns the corresponding image from /data/
+     * returns the corresponding image from data/
      */
-    public ChessImage getImage() {
-        return image;
+    public Image getImage() {
+        return image.getImage();
     }
 
     /*
      * returns a list of Cells the piece can potentially move to
      */
-    public abstract List<Position> generateMovableCells();
-
-    /*
-     * returns a list of Cells the piece can potentially capture
-     */
-    public abstract List<Position> generateCapturableCells();
+    public abstract List<MovementPattern> getMovementPattern();
 
     /*
      * change the position of the piece
-     * returns whether the position is valid or not
      */
-    public boolean movePiece(int x, int y) {
-        try {
-            pos.setX(x);
-            pos.setY(y);
-            return true;
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return false;
-        }
+    public void movePiece(int x, int y) {
+        pos.x = x;
+        pos.y = y;
+    }
+
+    public Point getPosition() {
+        return pos;
+    }
+
+    public boolean isPieceWhite() {
+        return white;
     }
 }

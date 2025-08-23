@@ -1,51 +1,35 @@
-package UI;
+package chess.UI;
 
-import Model.Move;
+import javax.swing.JPanel;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 
-/*
-This class represents a single Panel that remembers 2 moves, one for white and one for black, and will display them.
- */
+import chess.controller.moves.Move;
+
 public class MovePanel extends JPanel {
-    private int moveNumber;
+    private int moveNum;
     private Move whiteMove;
     private Move blackMove;
 
-    public MovePanel(int moveNumber, Move whiteMove) {
-        this.moveNumber = moveNumber;
+    public MovePanel(int moveNum, Move whiteMove) {
+        this.moveNum = moveNum;
         this.whiteMove = whiteMove;
-//        if (capture) {
-//            whiteMove = new Capture(whitePiece, moveFrom);
-//        } else {
-//            whiteMove = new Move(whitePiece, moveFrom);
-//        }
-        blackMove = null;
     }
-    //Generates a random number with Math.random() and creates a colour using it
-//    private static Color getRandomColor() {
-//        return new Color((int) (Math.random() * 0x1000000));
-//    }
+
     public void addBlackMove(Move blackMove) {
         this.blackMove = blackMove;
-//        if (capture) {
-//            blackMove = new Capture(blackPiece, moveFrom);
-//        } else {
-//            blackMove = new Move(blackPiece, moveFrom);
-//        }
     }
 
     @Override
     public void paint(Graphics g) {
+        super.paint(g);
         Graphics2D g2D = (Graphics2D) g;
-        g2D.setBackground(Color.white);
-        g2D.clearRect(0,0, getWidth(), getHeight());
-//        g2D.drawString(moveNumber + ". " + whiteMove.toString(), 20, getHeight() / 2);
-        if (blackMove != null) {
-            g2D.drawString(moveNumber + ". " + whiteMove.toString() + " " + blackMove.toString(), 20, getHeight() / 2);
-        } else {
-            g2D.drawString(moveNumber + ". " + whiteMove.toString(), 20, getHeight() / 2);
-        }
+        g2D.setBackground(Color.WHITE);
+        g2D.clearRect(0, 0, getWidth(), getHeight());
+
+        String display = String.valueOf(moveNum) + ". " + whiteMove.toString() + " " + (blackMove == null ? "" : blackMove.toString());
+        g2D.drawString(display, getWidth() / 10, getHeight() / 2);
     }
 }

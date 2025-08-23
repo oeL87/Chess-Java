@@ -14,6 +14,10 @@ public class Move {
         this.target = target;
     }
 
+    public boolean isPieceWhite() {
+        return movingPiece.isPieceWhite();
+    }
+
     @Override
     public String toString() {
         return movingPiece.toString() + target.toString();

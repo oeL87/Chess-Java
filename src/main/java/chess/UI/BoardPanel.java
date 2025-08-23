@@ -1,60 +1,91 @@
-package UI;
+package chess.UI;
 
-import Model.*;
-
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.plaf.DimensionUIResource;
 import java.awt.*;
 
-/*
-This class represents a JPanel that can display the Board gameBoard
- */
-public class BoardPanel extends JPanel {
-    private Board gameBoard;
+import chess.controller.Board;
+import chess.controller.StandardBoard;
+import chess.controller.Cell;
 
-    public BoardPanel() {
-        setPreferredSize(new Dimension(623, 635));
-        gameBoard = new Board();
+public class BoardPanel extends JPanel {
+    private Board board;
+    private Cell highlightedCell;
+    private static int cellSize = 60;
+    private static int boardsize = 8;
+    private static Color white = new Color(0xff86dfeb);
+    private static Color black = new Color(0xff35818c);
+    private static Color selectedColor = new Color(0xff5db5c2);
+
+    public BoardPanel(String gametype) {
+        // if (gametype == "default") { //TODO: make if statement concrete with more boardtypes
+            board = new StandardBoard();
+        // }
+        setPreferredSize(new DimensionUIResource(600, 600));
+        board.initBoard();
+        highlightedCell = null;
+    }
+
+    public int getCellSize() {
+        return cellSize;
     }
 
     @Override
     public void paint(Graphics g) {
-//        System.out.println(getWidth() + " " + getHeight());
+        super.paint(g);
         Graphics2D g2D = (Graphics2D) g;
+        Color labelColor = black;
+        Font labelFont = new Font("Dialog", Font.BOLD, 18);
+
         g2D.setBackground(new Color(0xff4e6a6e));
-        g2D.clearRect(0,0, getWidth(), getHeight());
-//        System.out.println("----------------------------");
-        for (int x = 0; x < 8; x++) {
-            for (int y = 0; y < 8; y++) {
-                int cornerX = x * 60 + 60;
-                int cornerY = getHeight() - y * 60 - 120;
-                Cell current = gameBoard.getColumns().get(x).getCells().get(y);
+        g2D.clearRect(0, 0, getWidth(), getHeight());
 
-//                System.out.print(((current.isCellMove() ? "1" : "0")) + "|");
+        paintBoard(g2D);
 
-                g2D.setColor(new Color(current.isCellHighlighted() ? 0xff5db5c2 :
-                        (current.isCellWhite() ? 0xff86dfeb : 0xff35818c)));
-                g2D.fillRect(cornerX, cornerY, 60, 60);
-                if (current.isHasPiece()) {
-                    g2D.drawImage(current.getPiece().getImage(), cornerX, cornerY, this);
-                } else if (current.isCellMove()) {
-                    g2D.setColor(new Color(0xffaaaaaa));
-                    g2D.fillOval(cornerX + 20, cornerY + 20, 20, 20);
-//                    System.out.println("test");
-                }
-
-            }
-            g2D.setColor(Color.BLACK);
-            g2D.setFont(new Font("Dialog", Font.PLAIN, 32));
-            g2D.drawString(Integer.toString(8 - x), 30, x * 60 + 90);
-//            System.out.println();
+        g2D.setColor(labelColor);
+        g2D.setFont(labelFont);
+        for (int col = 0; col < boardsize; col++) {
+            String file = String.valueOf((char) ('a' + col));
+            int x = (col + 1) * cellSize + cellSize / 2 - g2D.getFontMetrics().stringWidth(file) / 2;
+            int y = (boardsize + 1) * cellSize + labelFont.getSize();
+            g2D.drawString(file, x, y);
         }
-        g2D.setColor(Color.BLACK);
-        g2D.setFont(new Font("Dialog", Font.PLAIN, 32));
-        g2D.drawString("a     b     c     d     e     f     g     h", 80, 580);
 
+        for (int row = 0; row < boardsize; row++) {
+            String rank = String.valueOf(boardsize - row);
+            int x = cellSize / 2 - g2D.getFontMetrics().stringWidth(rank);
+            int y = (row + 1) * cellSize + cellSize / 2 + labelFont.getSize() / 2;
+            g2D.drawString(rank, x, y);
+        }
     }
 
-    public Board getGameBoard() {
-        return gameBoard;
+    private void paintBoard(Graphics2D g2D) {
+        for (int row = 0; row < boardsize; row++) {
+            for (int col = 0; col < boardsize; col++) {
+                Cell cell = board.getBoardCells()[row][col];
+                int x = row * cellSize + cellSize;
+                int y = boardsize * cellSize - col * cellSize;
+
+                boolean isWhite = (row + col) % 2 == 1;
+                if (highlightedCell != null && highlightedCell.getRowNum() == row && (int)(highlightedCell.getColumnLetter() - 'a') == col) {
+                    g2D.setColor(selectedColor);
+                } else {
+                    g2D.setColor(isWhite ? white : black);
+                }
+                g2D.fillRect(x, y, cellSize, cellSize);
+
+                if (cell.getPiece() != null) {
+                    g2D.drawImage(cell.getPiece().getImage(), x, y, cellSize, cellSize, this);
+                }
+            }
+        }
+    }
+
+    public void setHighlight(Cell cell) {
+        this.highlightedCell = cell;
+    }
+
+    public Board getBoard() {
+        return board;
     }
 }
