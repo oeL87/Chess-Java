@@ -3,8 +3,6 @@ package chess.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.text.Position;
-
 import java.awt.Point;
 
 import chess.controller.MovementPattern.MovementType;
@@ -54,7 +52,7 @@ public class StandardBoard implements Board {
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board[row].length; col++) {
                 if (board[row][col].getPiece() != null) {
-                    check = checkForKing(board[row][col]);
+                    check = check || checkForKing(board[row][col]);
                 }
             }
         }
@@ -72,7 +70,7 @@ public class StandardBoard implements Board {
         placeRooks();
         placeKnights();
         placeBishops();
-        // placePawns();
+        placePawns();
         placeRoyalty();
     }
 
@@ -118,9 +116,14 @@ public class StandardBoard implements Board {
 
     @Override
     public MoveLists generateValidMoves(Piece piece, Point start) {
+        if (piece instanceof Pawn) {
+            return generatePawnMoves(piece, start);
+        }
+
         List<MovementPattern> patterns = piece.getMovementPattern();
         List<Point> moves = new ArrayList<>();
         List<Point> captures = new ArrayList<>();
+
         for (MovementPattern pattern : patterns) {
             Direction dir = pattern.getDirection();
             boolean pieceColor = piece.isPieceWhite();
@@ -128,7 +131,7 @@ public class StandardBoard implements Board {
             switch (pattern.getType()) {
                 case SLIDING:
                     Point curr = new Point(start.x + dir.getDeltaX(), start.y + dir.getDeltaY());
-                    while (validatePosition(curr)) {
+                    while (validatePosition(curr, pieceColor)) {
                         sortMove(curr, pieceColor, moves, captures);
                         curr.x += dir.getDeltaX();
                         curr.y += dir.getDeltaY();
@@ -137,28 +140,22 @@ public class StandardBoard implements Board {
                 case JUMPING:
                 case STEPPING:
                     Point point = new Point(start.x + dir.getDeltaX(), start.y + dir.getDeltaY());
-                    if (!validatePosition(point)) break;
+                    if (!validatePosition(point, pieceColor)) break;
                     sortMove(point, pieceColor, moves, captures);
-                    break;
-                case SPECIAL:
-                    
-                    break;
-                
+                    break;       
             }
-            System.out.println("piece has " + moves.size() + " moves\n and " + captures.size() + " captures");
-
 
         }
-
-
-
-
-        return new MoveLists(null, null); //stub
+        System.out.println("piece has " + moves.size() + " moves\n and " + captures.size() + " captures");
+        return new MoveLists(captures, moves);
     }
 
-    private boolean validatePosition(Point point) {
+    private boolean validatePosition(Point point, boolean pieceColor) {
         return point.x < board.length && point.x >= 0 &&
-                point.y < board[0].length && point.y >= 0;
+                point.y < board[0].length && point.y >= 0 &&
+                (board[point.x][point.y].getPiece() == null ||
+                (board[point.x][point.y].getPiece() != null &&
+                board[point.x][point.y].getPiece().isPieceWhite() != pieceColor));
     }
 
     private void sortMove(Point point, boolean pieceColor, List<Point> moves, List<Point> captures) {
@@ -168,5 +165,38 @@ public class StandardBoard implements Board {
         } else if (board[point.x][point.y].getPiece() == null) {
             moves.add(point);
         }
+    }
+
+    private MoveLists generatePawnMoves(Piece pawn, Point start) {
+        List<Point> moves = new ArrayList<>();
+        List<Point> captures = new ArrayList<>();
+        boolean isWhite = pawn.isPieceWhite();
+        int dir = isWhite ? 1 : -1;
+        int startRow = isWhite ? 1 : 6;
+        int row = start.x;
+        int col = start.y;
+
+        Point step = new Point(row, col + dir);
+        if (validatePosition(step, isWhite) && board[step.x][step.y].getPiece() == null) {
+            moves.add(step);
+            Point doubleMove = new Point(row, col + 2 * dir);
+            if (col == startRow && board[doubleMove.x][doubleMove.y].getPiece() == null) {
+                moves.add(doubleMove);
+            }
+        }
+
+        for (int take = -1; take <= 1; take += 2) {
+            int newCol = col + dir;
+            int newRow = row + take;
+            Point diag = new Point(newRow, newCol);
+            if (validatePosition(diag, isWhite)) {
+                Piece target = board[diag.x][diag.y].getPiece();
+                if (target != null && target.isPieceWhite() != isWhite) {
+                    captures.add(diag);
+                }
+            }
+        }
+        System.out.println("piece has " + moves.size() + " moves\n and " + captures.size() + " captures");
+        return new MoveLists(captures, moves);
     }
 }

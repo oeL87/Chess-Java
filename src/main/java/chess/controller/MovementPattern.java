@@ -20,8 +20,7 @@ public class MovementPattern {
     public enum MovementType {
         SLIDING,
         JUMPING,
-        STEPPING,
-        SPECIAL
+        STEPPING
     }
 }
 
