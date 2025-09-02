@@ -1,6 +1,7 @@
 package chess.controller;
 
 import java.awt.Point;
+import java.util.Objects;
 
 import chess.controller.pieces.Piece;
 
@@ -18,6 +19,19 @@ public class Cell {
     @Override
     public String toString() {
         return columnLetter + "" + rowNum;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Cell c = (Cell) o;
+        return columnLetter == c.columnLetter && rowNum == c.rowNum;
+    } 
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(columnLetter, rowNum);
     }
 
     public void setPiece(Piece piece) {

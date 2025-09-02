@@ -1,29 +1,37 @@
 package chess.UI;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.util.List;
-import java.util.ArrayList;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.DimensionUIResource;
 
-import chess.controller.*;
-import chess.controller.MovementPattern.MovementType;
+import chess.controller.Board.MoveLists;
+import chess.controller.Cell;
+import chess.controller.errors.InvalidMoveException;
+import chess.controller.errors.StillCheckedException;
+import chess.controller.moves.Move;
 
 public class MainPanel extends JFrame implements MouseInputListener { 
-    private JScrollPane scrollPane;
-    private BoardPanel boardPanel;
-    private Point selectedCell = null;
-    List<Point> legalMoves = new ArrayList<>();
+    private final MoveScrollPane scrollPane;
+    private final BoardPanel boardPanel;
+    private MoveLists legalMoves = null;
+    private Cell source = null;
+    private Cell target = null;
 
     public MainPanel() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Chess");
         setSize(new DimensionUIResource(850, 640));
         setResizable(true);
-        addMouseListener(this);
         setLocationRelativeTo(null);
 
         //TODO: allow user to change gametype
@@ -56,6 +64,9 @@ public class MainPanel extends JFrame implements MouseInputListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        boardPanel.repaint();
+        scrollPane.repaint();
+
         Point boardLoc = boardPanel.getLocationOnScreen();
         int mouseX = e.getXOnScreen() - boardLoc.x;
         int mouseY = e.getYOnScreen() - boardLoc.y;
@@ -66,28 +77,60 @@ public class MainPanel extends JFrame implements MouseInputListener {
         if (mouseX < cellSize || mouseY < cellSize ||
             mouseX >= cellSize + boardPixels || mouseY >= cellSize + boardPixels) {
             System.out.println("OOB lmao");
-            selectedCell = null;
-            boardPanel.setHighlight(null);
+            boardPanel.setSelectedPoint(null);
             boardPanel.repaint();
             return;
         }
 
         int row = (mouseX - cellSize) / cellSize;
         int col = 7 - (mouseY - cellSize) / cellSize;
+        Cell selected = boardPanel.getCellAtPoint(new Point(row, col));
 
-        if (selectedCell == null || !legalMoves.contains(new Point(row, col))) {
-            selectedCell = new Point(row, col);
-            Cell cell = boardPanel.getBoard().getBoardCells()[row][col];
-            legalMoves.clear();
-            // System.out.println(cell.getPosition() + " " + selectedCell);
-            if (cell.getPiece() != null) {
-                boardPanel.getBoard().generateValidMoves(cell.getPiece(), cell.getPosition());
-            }
-        } else if (legalMoves.contains(new Point(row, col))) {
-            Cell source = boardPanel.getBoard().getBoardCells()[selectedCell.x][selectedCell.y];
-            Cell target = boardPanel.getBoard().getBoardCells()[row][col];
-            boardPanel.getBoard().performMove(source, target, MovementType.SLIDING);
+        if (selected == null) return;
+        // System.out.println(source);
+        boardPanel.setSelectedPoint(new Point(row, col));
+        // System.out.println("Before " + source + " " + target);
+
+        if (source == null) {
+            System.out.println("source set: " + selected);
+            source = selected;
+            legalMoves = boardPanel.getBoard().generateValidMoves(source.getPosition());
+        } else if (source.equals(selected)) {
+            System.out.println("both cleared");
+            source = null;
+            target = null;
+            boardPanel.setSelectedPoint(null);
+            boardPanel.repaint();
+            return;
+        } else {
+            System.out.println("target set: " + selected);
+            target = selected;
         }
+        // System.out.println("After " + source + " " + target);
+        if (target == null) return;
+
+        if (source.getPiece() == null) {
+            source = null;
+            target = null;
+            return;
+        }
+        
+        // System.out.println("moves: " + legalMoves);
+        if (legalMoves != null && legalMoves.contains(target.getPosition())) {
+            System.out.println("moving?");
+            try {
+                Move move = boardPanel.performMove(source, target);
+                scrollPane.addMove(move);
+            } catch (InvalidMoveException | StillCheckedException m) {
+                System.out.println(m.getMessage());
+            }
+            
+            
+        }
+
+        source = null;
+        target = null;
+        boardPanel.setSelectedPoint(null);
     }
     //TODO: allow user to use mouse to do a bunch of things
 

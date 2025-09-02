@@ -1,17 +1,27 @@
 package chess.controller;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.awt.Point;
+import chess.controller.errors.InvalidMoveException;
+import chess.controller.errors.StillCheckedException;
+import chess.controller.moves.Capture;
+import chess.controller.moves.Castle;
+import chess.controller.moves.Move;
+import chess.controller.pieces.Bishop;
+import chess.controller.pieces.King;
+import chess.controller.pieces.Knight;
+import chess.controller.pieces.Pawn;
+import chess.controller.pieces.Piece;
+import chess.controller.pieces.Queen;
+import chess.controller.pieces.Rook;
 
-import chess.controller.MovementPattern.MovementType;
-import chess.controller.pieces.*;
-
-public class StandardBoard implements Board {
+public final class StandardBoard implements Board {
     private Cell[][] board;
     private int moveCount;
     private boolean whiteTurn;
+    private Move lastMove;
 
     public StandardBoard() {
         initBoard();
@@ -32,37 +42,105 @@ public class StandardBoard implements Board {
     }
 
     @Override
-    public boolean performMove(Cell source, Cell target, MovementType type) {
-        if (source.getPiece() == null) return false;
-        Piece piece = source.getPiece();
-        source.setPiece(target.getPiece());
-        target.setPiece(piece);
-        piece.movePiece(target.getPosition().x, target.getPosition().y);
-        if (target.getPiece() != null) {
-            target.getPiece().movePiece(source.getPosition().x, source.getPosition().y);
+    public Move performMove(Cell source, Cell target) throws InvalidMoveException, StillCheckedException {
+        Piece piece = source.getPiece();  
+        validateMove(source, target, piece);
+
+        if (piece instanceof King && Math.abs(target.getPosition().x - source.getPosition().x) == 2) {
+            Piece castled = performCastle(source, target);
+            lastMove = new Castle(piece, castled, source, target);
+        } else if (target.getPiece() == null) {
+            lastMove = new Move(piece, source, target);
+        } else {
+            lastMove = new Capture(piece, source, target);
         }
+
+        source.setPiece(null);
+        target.setPiece(piece);
+        piece.movePiece(target.getPosition());
         whiteTurn = !whiteTurn;
         moveCount++;
-        return true;
+
+        return lastMove;
+    }
+
+    private void validateMove(Cell source, Cell target, Piece piece) throws InvalidMoveException, StillCheckedException {
+        if (piece == null) throw new InvalidMoveException("Source has no piece");
+        if (piece.isPieceWhite() != whiteTurn) throw new InvalidMoveException("Source's piece colour is wrong");
+      
+        Piece oldSourcePiece = source.getPiece();
+        Piece oldTargetPiece = target.getPiece();
+        source.setPiece(null);
+        target.setPiece(piece);
+
+        if (checkForChecksForColor(piece.isPieceWhite())) {
+            source.setPiece(oldSourcePiece);
+            target.setPiece(oldTargetPiece);
+            throw new StillCheckedException(piece.isPieceWhite() + " King is still in check");
+        }
+        source.setPiece(oldSourcePiece);
+        target.setPiece(oldTargetPiece);
+    }
+
+    private Piece performCastle(Cell source, Cell target) throws InvalidMoveException {
+        int row = source.getRowNum() - 1;
+        Piece kingRook = board[7][row].getPiece();
+        Piece queenRook = board[0][row].getPiece();
+        Piece castled = null;
+        if (target.getPosition().x > source.getPosition().x && kingRook instanceof Rook && ((Rook) kingRook).canCastle()) {
+            Cell rookSource = board[7][row];
+            Cell rookTarget = board[5][row];
+            rookTarget.setPiece(rookSource.getPiece());
+            rookSource.setPiece(null);
+            rookTarget.getPiece().movePiece(rookTarget.getPosition());
+            castled = kingRook;
+        } else if (queenRook instanceof Rook && ((Rook) queenRook).canCastle()) {
+            Cell rookSource = board[0][row];
+            Cell rookTarget = board[3][row];
+            rookTarget.setPiece(rookSource.getPiece());
+            rookSource.setPiece(null);
+            rookTarget.getPiece().movePiece(rookTarget.getPosition());
+            castled = queenRook;
+        }
+        if (castled == null) throw new InvalidMoveException("No piece to castle to");
+        return castled;
+    }
+
+    public Move getLastMove() {
+        return lastMove;
     }
 
     @Override
     public boolean checkForChecks() {
-        boolean check = false;
-        for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col < board[row].length; col++) {
-                if (board[row][col].getPiece() != null) {
-                    check = check || checkForKing(board[row][col]);
+        return checkForChecksForColor(whiteTurn) || checkForChecksForColor(!whiteTurn);
+    }
+
+    private boolean checkForChecksForColor(boolean isWhite) {
+        for (Cell[] row : board) {
+            for (Cell cell : row) {
+                Piece p = cell.getPiece();
+                if (p instanceof King && p.isPieceWhite() == isWhite) {
+                    return isCellAttacked(cell, !isWhite);
                 }
             }
         }
-        return check;
+        return false;
     }
 
-    private boolean checkForKing(Cell cell) {
-
-
-        return false;//stub
+    private boolean isCellAttacked(Cell cell, boolean isWhite) {
+        Point pos = cell.getPosition();
+        for (Cell[] row : board) {
+            for (Cell attacker : row) {
+                Piece p = attacker.getPiece();
+                if (p != null && p.isPieceWhite() == isWhite) {
+                    MoveLists moves = generateValidMoves(attacker.getPosition(), false);
+                    if (moves != null && moves.getCaptures() != null && moves.getCaptures().contains(pos)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -115,7 +193,14 @@ public class StandardBoard implements Board {
     }
 
     @Override
-    public MoveLists generateValidMoves(Piece piece, Point start) {
+    public MoveLists generateValidMoves(Point start) {
+        return generateValidMoves(start, true);
+    }
+
+    private MoveLists generateValidMoves(Point start, boolean includeCastling) {
+        Piece piece = board[start.x][start.y].getPiece();
+        if (piece == null) return new MoveLists(null, null);
+
         if (piece instanceof Pawn) {
             return generatePawnMoves(piece, start);
         }
@@ -127,27 +212,81 @@ public class StandardBoard implements Board {
         for (MovementPattern pattern : patterns) {
             Direction dir = pattern.getDirection();
             boolean pieceColor = piece.isPieceWhite();
-            System.out.println(dir);
+            // System.out.println(dir);
             switch (pattern.getType()) {
                 case SLIDING:
                     Point curr = new Point(start.x + dir.getDeltaX(), start.y + dir.getDeltaY());
-                    while (validatePosition(curr, pieceColor)) {
-                        sortMove(curr, pieceColor, moves, captures);
-                        curr.x += dir.getDeltaX();
-                        curr.y += dir.getDeltaY();
+                    boolean capture = false;
+                    while (validatePosition(curr, pieceColor) && !capture) {
+                        capture = sortMove(curr, pieceColor, moves, captures);
+                        curr = new Point(curr.x + dir.getDeltaX(), curr.y + dir.getDeltaY());
                     }
                     break;
                 case JUMPING:
                 case STEPPING:
                     Point point = new Point(start.x + dir.getDeltaX(), start.y + dir.getDeltaY());
-                    if (!validatePosition(point, pieceColor)) break;
-                    sortMove(point, pieceColor, moves, captures);
+                    if (validatePosition(point, pieceColor)) 
+                        sortMove(point, pieceColor, moves, captures);
+                    break;       
+                case SPECIAL: 
+                    if (includeCastling) {
+                        Point specialPoint = new Point(start.x + dir.getDeltaX(), start.y + dir.getDeltaY());
+                        if (validatePosition(specialPoint, pieceColor) && canCastle(start, specialPoint, whiteTurn))
+                            moves.add(specialPoint);
+                    }
                     break;       
             }
 
         }
-        System.out.println("piece has " + moves.size() + " moves\n and " + captures.size() + " captures");
+        // System.out.println("piece has " + moves.size() + " moves and " + captures.size() + " captures");
         return new MoveLists(captures, moves);
+    }
+
+    private boolean canCastle(Point kingPoint, Point target, boolean isWhite) {
+        int row = kingPoint.y;
+        int colSource = kingPoint.x;
+        int colTarget = target.x;
+
+        if (colSource < colTarget) {
+            System.out.println("kingside");
+            Cell rookCell = board[7][row];
+            Piece rook = rookCell.getPiece();
+            if (!(rook instanceof Rook) || !((Rook) rook).canCastle()) return false;
+
+            for (int x = colSource + 1; x < 7; x++) {
+                if (board[x][row].getPiece() != null) return false;
+            }
+
+            for (int x = colSource; x <= colSource + 2; x++) {
+                if (wouldBeInCheck(kingPoint, new Point(x, row), isWhite)) return false;
+            }
+            return true;
+        } else {
+            System.out.println("Queenside");
+            Cell rookCell = board[0][row];
+            Piece rook = rookCell.getPiece();
+            if (!(rook instanceof Rook) || !((Rook) rook).canCastle()) return false;
+
+            for (int x = colSource - 1; x > 0; x--) {
+                if (board[x][row].getPiece() != null) return false;
+            }
+
+            for (int x = colSource; x >= colSource - 2; x--) {
+                if (wouldBeInCheck(kingPoint, new Point(x, row), isWhite)) return false;
+            }
+            return true;
+        }
+    }
+
+    private boolean wouldBeInCheck(Point from, Point to, boolean isWhite) {
+        Piece king = board[from.x][from.y].getPiece();
+        Piece temp = board[to.x][to.y].getPiece();
+        board[from.x][from.y].setPiece(null);
+        board[to.x][to.y].setPiece(king);
+        boolean inCheck = checkForChecksForColor(isWhite);
+        board[to.x][to.y].setPiece(temp);
+        board[from.x][from.y].setPiece(king);
+        return inCheck;
     }
 
     private boolean validatePosition(Point point, boolean pieceColor) {
@@ -158,13 +297,15 @@ public class StandardBoard implements Board {
                 board[point.x][point.y].getPiece().isPieceWhite() != pieceColor));
     }
 
-    private void sortMove(Point point, boolean pieceColor, List<Point> moves, List<Point> captures) {
+    private boolean sortMove(Point point, boolean pieceColor, List<Point> moves, List<Point> captures) {
         if (board[point.x][point.y].getPiece() != null && 
             board[point.x][point.y].getPiece().isPieceWhite() != pieceColor) {
             captures.add(point);
+            return true;
         } else if (board[point.x][point.y].getPiece() == null) {
             moves.add(point);
         }
+        return false;
     }
 
     private MoveLists generatePawnMoves(Piece pawn, Point start) {
@@ -196,7 +337,19 @@ public class StandardBoard implements Board {
                 }
             }
         }
-        System.out.println("piece has " + moves.size() + " moves\n and " + captures.size() + " captures");
+
+        if (lastMove != null && lastMove.getPiece() instanceof Pawn) {
+            int lastFromY = lastMove.getSource().getPosition().y;
+            int lastToY = lastMove.getTarget().getPosition().y;
+            int lastToX = lastMove.getTarget().getPosition().x;
+            if (Math.abs(lastToY - lastFromY) == 2 && col == lastToY && Math.abs(row - lastToX) == 1) {
+                Point enPassant = new Point(lastToX, col + dir);
+                if (validatePosition(enPassant, isWhite)) {
+                    captures.add(enPassant);
+                }
+            }
+        }
+        // System.out.println("piece has " + moves.size() + " moves\n and " + captures.size() + " captures");
         return new MoveLists(captures, moves);
     }
 }

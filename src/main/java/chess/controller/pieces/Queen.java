@@ -27,4 +27,9 @@ public class Queen extends Piece {
             new MovementPattern(Direction.NORTHWEST, MovementType.SLIDING)  
         );
     }
+
+    @Override
+    public String toString() {
+        return "Q";
+    }
 }

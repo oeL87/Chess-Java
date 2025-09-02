@@ -1,8 +1,9 @@
 package chess.controller.pieces;
 
+import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
 
 import chess.controller.ChessImage;
 import chess.controller.Direction;
@@ -33,19 +34,24 @@ public class King extends Piece {
             new MovementPattern(Direction.NORTHWEST, MovementType.STEPPING)
         ));
         if (kingSideCastle) {
-            ret.add(new MovementPattern(new Direction(2, 0), MovementType.STEPPING));
+            ret.add(new MovementPattern(new Direction(2, 0), MovementType.SPECIAL));
         }
         if (queenSideCastle) {
-            ret.add(new MovementPattern(new Direction(-2, 0), MovementType.STEPPING));
+            ret.add(new MovementPattern(new Direction(-2, 0), MovementType.SPECIAL));
         }
         return ret;
     }
 
     @Override
-    public void movePiece(int x, int y) {
-        pos.x = x;
-        pos.y = y;
+    public void movePiece(Point p) {
+        pos.x = p.x;
+        pos.y = p.y;
         kingSideCastle = false;
         queenSideCastle = false;
+    }
+
+    @Override
+    public String toString() {
+        return "K";
     }
 }

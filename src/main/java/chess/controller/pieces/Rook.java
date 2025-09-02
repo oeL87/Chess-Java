@@ -1,5 +1,6 @@
 package chess.controller.pieces;
 
+import java.awt.Point;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +25,18 @@ public class Rook extends Piece {
             new MovementPattern(Direction.SOUTH, MovementType.SLIDING),
             new MovementPattern(Direction.WEST, MovementType.SLIDING)
         );
+    }
+
+    @Override
+    public String toString() {
+        return "R";
+    }
+
+    @Override
+    public void movePiece(Point p) {
+        pos.x = p.x;
+        pos.y = p.y;
+        castleTo = false;
     }
 
     public boolean canCastle() {

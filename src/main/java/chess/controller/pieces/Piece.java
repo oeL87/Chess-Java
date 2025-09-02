@@ -1,8 +1,8 @@
 package chess.controller.pieces;
 
-import java.util.List;
 import java.awt.Image;
 import java.awt.Point;
+import java.util.List;
 
 import chess.controller.ChessImage;
 import chess.controller.MovementPattern;
@@ -33,9 +33,9 @@ public abstract class Piece {
     /*
      * change the position of the piece
      */
-    public void movePiece(int x, int y) {
-        pos.x = x;
-        pos.y = y;
+    public void movePiece(Point p) {
+        pos.x = p.x;
+        pos.y = p.y;
     }
 
     public Point getPosition() {

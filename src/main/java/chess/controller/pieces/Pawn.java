@@ -19,8 +19,7 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public void movePiece(int x, int y) {
-        pos.x = x;
-        pos.y = y;
+    public String toString() {
+        return "";
     }
 }

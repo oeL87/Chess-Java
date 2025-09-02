@@ -18,6 +18,18 @@ public class Move {
         return movingPiece.isPieceWhite();
     }
 
+    public Piece getPiece() {
+        return movingPiece;
+    }
+
+    public Cell getSource() {
+        return source;
+    }
+
+    public Cell getTarget() {
+        return target;
+    }
+
     @Override
     public String toString() {
         return movingPiece.toString() + target.toString();

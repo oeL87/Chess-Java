@@ -1,25 +1,32 @@
 package chess.UI;
 
-import javax.swing.JPanel;
-
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+
+import javax.swing.JPanel;
 
 import chess.controller.moves.Move;
 
 public class MovePanel extends JPanel {
-    private int moveNum;
-    private Move whiteMove;
+    private final int moveNum;
+    private final Move whiteMove;
     private Move blackMove;
 
-    public MovePanel(int moveNum, Move whiteMove) {
+    public MovePanel(int moveNum, Move whiteMove, Dimension parentDimension) {
         this.moveNum = moveNum;
         this.whiteMove = whiteMove;
+        setPreferredSize(new Dimension(parentDimension.width, parentDimension.height / 5));
+        setMaximumSize(new Dimension(parentDimension.width, parentDimension.height / 5));
     }
 
     public void addBlackMove(Move blackMove) {
         this.blackMove = blackMove;
+    }
+
+    public boolean hasBlackMove() {
+        return blackMove != null;
     }
 
     @Override

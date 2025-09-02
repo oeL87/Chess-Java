@@ -27,4 +27,9 @@ public class Knight extends Piece {
             new MovementPattern(new Direction(-1, 2), MovementType.JUMPING)
         );
     }
+
+    @Override
+    public String toString() {
+        return "N";
+    }
 }

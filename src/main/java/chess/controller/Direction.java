@@ -1,5 +1,7 @@
 package chess.controller;
 
+import java.util.Objects;
+
 public class Direction {
     private final int deltaX;
     private final int deltaY;
@@ -23,6 +25,11 @@ public class Direction {
         if (obj == null || getClass() != obj.getClass()) return false;
         Direction direction = (Direction) obj;
         return deltaX == direction.deltaX && deltaY == direction.deltaY;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(deltaX, deltaY);
     }
 
     @Override

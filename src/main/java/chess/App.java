@@ -12,5 +12,6 @@ public class App
     {
         //TODO: Start the UI, create a board, and start playing
         MainPanel main = new MainPanel();
+        main.addMouseListener(main);
     }
 }
