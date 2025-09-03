@@ -96,7 +96,7 @@ public class BoardPanel extends JPanel {
         Color dots = new Color(0xffaaaaaa);
         g2D.setColor(dots);
         if (potentialMoves == null) return;
-        // System.out.println(potentialMoves);
+        
         for (Point point : potentialMoves) {
             int x = point.x * CELL_SIZE + CELL_SIZE + CELL_SIZE / 3;
             int y = BOARD_SIZE * CELL_SIZE - point.y * CELL_SIZE + CELL_SIZE / 3;
