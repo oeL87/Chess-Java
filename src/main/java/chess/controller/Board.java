@@ -21,10 +21,19 @@ public interface Board {
     Move performMove(Cell source, Cell target) throws InvalidMoveException, StillCheckedException;
 
     /*
-     * Check to see if there are any checks on the board
-     * return whether a check appears or not
+     * Check to see if there are any checks for isWhite
      */
-    boolean checkForChecks();
+    boolean checkForChecksForColor(boolean isWhite);
+
+    /*
+     * Check to see if isWhite is checkmated
+     */
+    boolean checkForCheckmateForColor(boolean isWhite);
+
+    /*
+     * Check to see if isWhite is stalemated
+     */
+    boolean checkForStalemateForColor(boolean isWhite);
 
     /*
      * Place pieces back to the whatever the boards base state is

@@ -4,18 +4,18 @@ import chess.controller.Cell;
 import chess.controller.pieces.Piece;
 
 public class Castle extends Move {
-    private final Piece secondMovingPiece;
+    private final boolean kingside;
 
     public Castle(Piece movingPiece, Piece secondMovingPiece, Cell source, Cell target) {
         super(movingPiece, source, target);
-        this.secondMovingPiece = secondMovingPiece;
+        kingside = secondMovingPiece.getPosition().getX() > movingPiece.getPosition().getX();
     }
 
     @Override
     public String toString() {
-        if (secondMovingPiece.getPosition().getX() < movingPiece.getPosition().getX()) {
-            return "O-O";
+        if (kingside) {
+            return "O-O" + modifier;
         }
-        return "O-O-O";
+        return "O-O-O" + modifier;
     }
 }

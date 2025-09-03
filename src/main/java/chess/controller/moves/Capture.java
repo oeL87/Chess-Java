@@ -11,6 +11,6 @@ public class Capture extends Move {
 
     @Override
     public String toString() {
-        return movingPiece.toString() + "x" + target.toString(); 
+        return movingPiece.toString() + "x" + target.toString() + modifier; 
     }
 }

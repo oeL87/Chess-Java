@@ -87,26 +87,20 @@ public class MainPanel extends JFrame implements MouseInputListener {
         Cell selected = boardPanel.getCellAtPoint(new Point(row, col));
 
         if (selected == null) return;
-        // System.out.println(source);
         boardPanel.setSelectedPoint(new Point(row, col));
-        // System.out.println("Before " + source + " " + target);
 
         if (source == null) {
-            System.out.println("source set: " + selected);
             source = selected;
             legalMoves = boardPanel.getBoard().generateValidMoves(source.getPosition());
         } else if (source.equals(selected)) {
-            System.out.println("both cleared");
             source = null;
             target = null;
             boardPanel.setSelectedPoint(null);
             boardPanel.repaint();
             return;
         } else {
-            System.out.println("target set: " + selected);
             target = selected;
         }
-        // System.out.println("After " + source + " " + target);
         if (target == null) return;
 
         if (source.getPiece() == null) {
@@ -115,9 +109,7 @@ public class MainPanel extends JFrame implements MouseInputListener {
             return;
         }
         
-        // System.out.println("moves: " + legalMoves);
         if (legalMoves != null && legalMoves.contains(target.getPosition())) {
-            System.out.println("moving?");
             try {
                 Move move = boardPanel.performMove(source, target);
                 scrollPane.addMove(move);

@@ -58,10 +58,72 @@ public final class StandardBoard implements Board {
         source.setPiece(null);
         target.setPiece(piece);
         piece.movePiece(target.getPosition());
+        lastMove.setCheck(checkForChecksForColor(!whiteTurn));
+        lastMove.setCheckmate(checkForCheckmateForColor(!whiteTurn));
         whiteTurn = !whiteTurn;
         moveCount++;
 
         return lastMove;
+    }
+
+    @Override
+    public boolean checkForChecksForColor(boolean isWhite) {
+        for (Cell[] row : board) {
+            for (Cell cell : row) {
+                Piece p = cell.getPiece();
+                if (p instanceof King && p.isPieceWhite() == isWhite) {
+                    return isCellAttacked(cell, !isWhite);
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean checkForCheckmateForColor(boolean isWhite) {
+        if (!checkForChecksForColor(isWhite)) return false;
+        return !canKingMove(isWhite);
+    }
+
+    @Override
+    public boolean checkForStalemateForColor(boolean isWhite) {
+        if (checkForCheckmateForColor(isWhite)) return false;
+        return !canKingMove(isWhite);
+    }
+
+    private boolean canKingMove(boolean isWhite) {
+        for (Cell[] row : board) {
+            for (Cell cell : row) {
+                Piece p = cell.getPiece();
+                if (p != null && p.isPieceWhite() == isWhite) {
+                    Point piecePos = cell.getPosition();
+                    MoveLists possibleMoves = generateValidMoves(piecePos, false);
+
+                    if (possibleMoves.getMoves() != null) {
+                        for (Point move : possibleMoves.getMoves()) {
+                            board[piecePos.x][piecePos.y].setPiece(null);
+                            board[move.x][move.y].setPiece(p);
+                            boolean stillInCheck = checkForChecksForColor(isWhite);
+                            board[piecePos.x][piecePos.y].setPiece(p);
+                            board[move.x][move.y].setPiece(null);
+                            if (!stillInCheck) return true;
+                        }
+                    }
+
+                    if (possibleMoves.getCaptures() != null) {
+                        for (Point capture : possibleMoves.getCaptures()) {
+                            board[piecePos.x][piecePos.y].setPiece(null);
+                            board[capture.x][capture.y].setPiece(p);
+                            boolean stillInCheck = checkForChecksForColor(isWhite);
+                            board[piecePos.x][piecePos.y].setPiece(p);
+                            board[capture.x][capture.y].setPiece(null);
+                            if (!stillInCheck) return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private void validateMove(Cell source, Cell target, Piece piece) throws InvalidMoveException, StillCheckedException {
@@ -108,23 +170,6 @@ public final class StandardBoard implements Board {
 
     public Move getLastMove() {
         return lastMove;
-    }
-
-    @Override
-    public boolean checkForChecks() {
-        return checkForChecksForColor(whiteTurn) || checkForChecksForColor(!whiteTurn);
-    }
-
-    private boolean checkForChecksForColor(boolean isWhite) {
-        for (Cell[] row : board) {
-            for (Cell cell : row) {
-                Piece p = cell.getPiece();
-                if (p instanceof King && p.isPieceWhite() == isWhite) {
-                    return isCellAttacked(cell, !isWhite);
-                }
-            }
-        }
-        return false;
     }
 
     private boolean isCellAttacked(Cell cell, boolean isWhite) {
@@ -212,7 +257,7 @@ public final class StandardBoard implements Board {
         for (MovementPattern pattern : patterns) {
             Direction dir = pattern.getDirection();
             boolean pieceColor = piece.isPieceWhite();
-            // System.out.println(dir);
+
             switch (pattern.getType()) {
                 case SLIDING:
                     Point curr = new Point(start.x + dir.getDeltaX(), start.y + dir.getDeltaY());
@@ -238,7 +283,7 @@ public final class StandardBoard implements Board {
             }
 
         }
-        // System.out.println("piece has " + moves.size() + " moves and " + captures.size() + " captures");
+
         return new MoveLists(captures, moves);
     }
 
@@ -248,7 +293,6 @@ public final class StandardBoard implements Board {
         int colTarget = target.x;
 
         if (colSource < colTarget) {
-            System.out.println("kingside");
             Cell rookCell = board[7][row];
             Piece rook = rookCell.getPiece();
             if (!(rook instanceof Rook) || !((Rook) rook).canCastle()) return false;
@@ -262,7 +306,6 @@ public final class StandardBoard implements Board {
             }
             return true;
         } else {
-            System.out.println("Queenside");
             Cell rookCell = board[0][row];
             Piece rook = rookCell.getPiece();
             if (!(rook instanceof Rook) || !((Rook) rook).canCastle()) return false;
@@ -349,7 +392,7 @@ public final class StandardBoard implements Board {
                 }
             }
         }
-        // System.out.println("piece has " + moves.size() + " moves\n and " + captures.size() + " captures");
+
         return new MoveLists(captures, moves);
     }
 }
