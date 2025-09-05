@@ -20,14 +20,14 @@ import chess.controller.errors.InvalidMoveException;
 import chess.controller.errors.StillCheckedException;
 import chess.controller.moves.Move;
 
-public class MainPanel extends JFrame implements MouseInputListener { 
+public class GamePanel extends JFrame implements MouseInputListener { 
     private final MoveScrollPane scrollPane;
     private final BoardPanel boardPanel;
     private MoveLists legalMoves = null;
     private Cell source = null;
     private Cell target = null;
 
-    public MainPanel() {
+    public GamePanel() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Chess");
         setSize(new DimensionUIResource(850, 640));
