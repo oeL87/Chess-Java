@@ -1,11 +1,15 @@
 package chess.UI;
 
 import java.awt.CardLayout;
+import java.awt.Component;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputListener;
 
-public class MainFrame extends JFrame {
+
+public class MainFrame extends JFrame implements MouseInputListener {
     private final CardLayout cardLayout;
     private final JPanel cardPanel;
 
@@ -25,16 +29,70 @@ public class MainFrame extends JFrame {
 
         TitleScreen title = new TitleScreen(this);
         BoardSelectorPanel selector = new BoardSelectorPanel(this);
+        GamePanel game = new GamePanel(this);
 
         cardPanel.add(title, TITLE_STRING);
         cardPanel.add(selector, BOARD_SELECTOR);
+        cardPanel.add(game, GAME_PANEL);
         
         add(cardPanel);
 
         showScreen(TITLE_STRING);
     }
 
+    public CardPanel getCurrentPanel() {
+        for (Component comp : cardPanel.getComponents()) {
+            if (comp.isVisible() && comp instanceof CardPanel) {
+                return (CardPanel) comp;
+            }
+        }
+
+        return null;
+    }
+
     public final void showScreen(String name) {
         cardLayout.show(cardPanel, name);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        cardPanel.repaint();
+        CardPanel panel = getCurrentPanel();
+        if (panel != null) {
+            panel.handleClick(e);
+        }
+
+        
+    }
+    //TODO: allow user to use mouse to do a bunch of things
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
     }
 }

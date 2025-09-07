@@ -2,17 +2,15 @@ package chess.UI;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 
 import javax.swing.BoxLayout;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.event.MouseInputListener;
-import javax.swing.plaf.DimensionUIResource;
 
 import chess.controller.Board.MoveLists;
 import chess.controller.Cell;
@@ -20,22 +18,19 @@ import chess.controller.errors.InvalidMoveException;
 import chess.controller.errors.StillCheckedException;
 import chess.controller.moves.Move;
 
-public class GamePanel extends JFrame implements MouseInputListener { 
+public class GamePanel extends CardPanel { 
     private final MoveScrollPane scrollPane;
     private final BoardPanel boardPanel;
+    private final MainFrame frame;
     private MoveLists legalMoves = null;
     private Cell source = null;
     private Cell target = null;
+    
 
-    public GamePanel() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("Chess");
-        setSize(new DimensionUIResource(850, 640));
-        setResizable(true);
-        setLocationRelativeTo(null);
-
+    public GamePanel(MainFrame frame) {
         //TODO: allow user to change gametype
         boardPanel = new BoardPanel("default");
+        this.frame = frame;
         setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
@@ -61,12 +56,14 @@ public class GamePanel extends JFrame implements MouseInputListener {
         setVisible(true);
     }
 
+    @Override
+    public void paint(Graphics g) {
+        scrollPane.repaint();
+        boardPanel.repaint();
+    }
 
     @Override
-    public void mouseClicked(MouseEvent e) {
-        boardPanel.repaint();
-        scrollPane.repaint();
-
+    public void handleClick(MouseEvent e) {
         Point boardLoc = boardPanel.getLocationOnScreen();
         int mouseX = e.getXOnScreen() - boardLoc.x;
         int mouseY = e.getYOnScreen() - boardLoc.y;
@@ -124,35 +121,8 @@ public class GamePanel extends JFrame implements MouseInputListener {
         target = null;
         boardPanel.setSelectedPoint(null);
     }
-    //TODO: allow user to use mouse to do a bunch of things
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-
+    private void gameOver() {
+        frame.showScreen(MainFrame.TITLE_STRING);
     }
 }

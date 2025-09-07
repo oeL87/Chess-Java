@@ -51,7 +51,7 @@ public class BoardPanel extends JPanel {
         Color labelColor = BLACK;
         Font labelFont = new Font("Dialog", Font.BOLD, 18);
 
-        g2D.setBackground(new Color(0xff4e6a6e));
+        g2D.setBackground(CardPanel.BACKGROUND);
         g2D.clearRect(0, 0, getWidth(), getHeight());
 
         paintBoard(g2D);
