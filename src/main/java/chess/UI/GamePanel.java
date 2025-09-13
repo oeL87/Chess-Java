@@ -57,7 +57,7 @@ public class GamePanel extends CardPanel {
     }
 
     @Override
-    public void paint(Graphics g) {
+    public void paintComponent(Graphics g) {
         scrollPane.repaint();
         boardPanel.repaint();
     }

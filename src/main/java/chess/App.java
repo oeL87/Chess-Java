@@ -1,7 +1,5 @@
 package chess;
 
-import java.awt.GraphicsEnvironment;
-
 import chess.UI.MainFrame;
 
 /**
@@ -13,8 +11,8 @@ public class App
     public static void main( String[] args )
     {
         //TODO: Start the UI, create a board, and start playing
-        for (String s : GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames())
-            System.out.println(s);
+        // for (String s : GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames())
+        //     System.out.println(s);
         javax.swing.SwingUtilities.invokeLater(() -> {
             MainFrame main = new MainFrame();
             main.addMouseListener(main);

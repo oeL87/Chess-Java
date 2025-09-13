@@ -56,6 +56,7 @@ public class MainFrame extends JFrame implements MouseInputListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        System.out.println("click");
         cardPanel.repaint();
         CardPanel panel = getCurrentPanel();
         if (panel != null) {

@@ -1,6 +1,7 @@
 package chess.UI;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -23,11 +24,12 @@ public class TitleScreen extends CardPanel {
     }
 
     @Override
-    public void paint(Graphics g) {
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
         String title = "Chess Game";
-        g2D.setBackground(CardPanel.BACKGROUND);
-        g2D.clearRect(0, 0, getWidth(), getHeight());
+        
+        g2D.setColor(Color.BLACK);
         g2D.setFont(titleFont);
         g2D.drawString(title, (getWidth() - g2D.getFontMetrics().stringWidth(title))/2, getHeight()/2);
     }

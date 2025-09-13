@@ -45,14 +45,10 @@ public class BoardPanel extends JPanel {
     }
 
     @Override
-    public void paint(Graphics g) {
-        super.paint(g);
+    public void paintComponent(Graphics g) {
         Graphics2D g2D = (Graphics2D) g;
         Color labelColor = BLACK;
         Font labelFont = new Font("Dialog", Font.BOLD, 18);
-
-        g2D.setBackground(CardPanel.BACKGROUND);
-        g2D.clearRect(0, 0, getWidth(), getHeight());
 
         paintBoard(g2D);
 
