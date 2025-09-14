@@ -6,6 +6,7 @@ import java.util.List;
 import chess.controller.errors.InvalidMoveException;
 import chess.controller.errors.StillCheckedException;
 import chess.controller.moves.Move;
+import chess.controller.pieces.Piece;
 
 public interface Board {
     /*
@@ -20,6 +21,17 @@ public interface Board {
      */
     Move performMove(Cell source, Cell target) throws InvalidMoveException, StillCheckedException;
 
+    /*
+     * pass in source and target cells and promotion piece
+     * return the move upon success
+     */
+    Move performMove(Cell source, Cell target, Piece promotionPiece) throws InvalidMoveException, StillCheckedException;
+    
+    /*
+     * checks if the pawn is reaching promotion
+     */
+    boolean isPromotion(Piece piece);
+    
     /*
      * Check to see if there are any checks for isWhite
      */

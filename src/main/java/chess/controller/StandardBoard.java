@@ -9,6 +9,8 @@ import chess.controller.errors.StillCheckedException;
 import chess.controller.moves.Capture;
 import chess.controller.moves.Castle;
 import chess.controller.moves.Move;
+import chess.controller.moves.Promotion;
+import chess.controller.moves.PromotionCapture;
 import chess.controller.pieces.Bishop;
 import chess.controller.pieces.King;
 import chess.controller.pieces.Knight;
@@ -63,6 +65,37 @@ public final class StandardBoard implements Board {
         whiteTurn = !whiteTurn;
         moveCount++;
 
+        return lastMove;
+    }
+
+    @Override
+    public boolean isPromotion(Piece piece) {
+        if (!(piece instanceof Pawn)) return false;
+        return !((piece.isPieceWhite() && piece.getPosition().y != 7) || 
+                (!piece.isPieceWhite() && piece.getPosition().y != 2));
+    }
+
+    @Override
+    public Move performMove(Cell source, Cell target, Piece promoted) throws InvalidMoveException, StillCheckedException {
+        if (promoted instanceof Pawn) throw new InvalidMoveException("Cannot promote to Pawn");
+
+        Piece piece = source.getPiece();
+        validateMove(source, target, piece);
+
+        if (target.getPiece() == null) {
+            lastMove = new Promotion(piece, source, target, promoted);
+        } else {
+            lastMove = new PromotionCapture(piece, source, target, promoted);
+        }
+        
+        source.setPiece(null);
+        target.setPiece(promoted);
+        piece.movePiece(target.getPosition());
+        lastMove.setCheck(checkForChecksForColor(!whiteTurn));
+        lastMove.setCheckmate(checkForCheckmateForColor(!whiteTurn));
+        whiteTurn = !whiteTurn;
+        moveCount++;
+        
         return lastMove;
     }
 
